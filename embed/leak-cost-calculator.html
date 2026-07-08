@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leak Cost Calculator | Compton CA Embed</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/style.css">
+<style>body{margin:0;padding:1rem;background:transparent}.embed-credit{font-size:.78rem;color:var(--text-muted);text-align:center;margin-top:1rem}a.embed-credit-link{color:var(--accent)}</style>
+</head>
+<body>
+
+<script>
+var E_RATE1 = 2.67;
+var E_HCF = 748;
+var etype = "faucet";
+
+function eSetType(t) {
+  etype = t;
+  var panels = document.querySelectorAll(".e-panel");
+  for (var i = 0; i < panels.length; i++) { panels[i].style.display = "none"; }
+  var p = document.getElementById("ep-" + t);
+  if (p) { p.style.display = "block"; }
+  var tabs = document.querySelectorAll(".e-tab");
+  for (var j = 0; j < tabs.length; j++) {
+    tabs[j].classList.toggle("on", tabs[j].dataset.t === t);
+  }
+  eCalc();
+}
+
+function eSetDrips(n) {
+  document.getElementById("e-drips").value = n;
+  eCalc();
+}
+
+function eCalc() {
+  var count = Math.max(1, parseInt(document.getElementById("e-count").value, 10) || 1);
+  var gpd = 0;
+  if (etype === "faucet") {
+    var d = parseFloat(document.getElementById("e-drips").value) || 60;
+    gpd = (d * 60 * 24) / 15140;
+  } else if (etype === "toilet") {
+    var ov = parseFloat(document.getElementById("e-toilet").value);
+    gpd = isNaN(ov) ? 480 : ov;
+  } else if (etype === "trickle") {
+    gpd = (parseFloat(document.getElementById("e-gph").value) || 0) * 24;
+  } else {
+    gpd = (parseFloat(document.getElementById("e-igph").value) || 60) * 24;
+  }
+  gpd *= count;
+  var gpm = gpd * 30.44;
+  var cost = (gpm / E_HCF) * E_RATE1;
+  var r = document.getElementById("e-result");
+  r.innerHTML = "<strong style='color:#F2A32C;font-size:1.3rem'>" + Math.round(gpm) + " gal/month</strong>"
+    + "<br><span style='color:#b9b3a8'>Water bill impact: <strong style='color:#f5f4f1'>$" + cost.toFixed(2) + "/month</strong> (City of Compton Tier 1)</span>"
+    + "<br><span style='color:#8a857c;font-size:.82rem'>Sewer also billed on same statement. Call (310) 605-5524 for combined rate.</span>";
+  r.style.display = "block";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  var els = document.querySelectorAll("#e-drips,#e-toilet,#e-gph,#e-igph,#e-count");
+  for (var i = 0; i < els.length; i++) { els[i].addEventListener("input", eCalc); }
+  eCalc();
+});
+</script>
+<style>
+.e-tab{display:inline-block;background:#1f1f1f;border:1px solid #383530;border-radius:6px;padding:.38rem .8rem;font-size:.85rem;cursor:pointer;font-weight:600;color:#b9b3a8;margin:.2rem}
+.e-tab.on,.e-tab:hover{background:#F2A32C;color:#1a1000;border-color:#F2A32C}
+.e-input{width:100%;background:#1f1f1f;border:1px solid #383530;border-radius:6px;color:#f5f4f1;padding:.55rem .8rem;font-size:.95rem;margin:.5rem 0 .25rem}
+.e-input:focus{outline:2px solid #F2A32C;border-color:#F2A32C}
+</style>
+<div style="background:#191919;color:#f5f4f1;font-family:system-ui,sans-serif;padding:1.25rem;border-radius:10px;border:1px solid #383530">
+  <p style="font-weight:800;font-size:1.05rem;margin-bottom:.85rem">Leak Cost Calculator <span style="font-size:.78rem;color:#8a857c;font-weight:400">City of Compton Rates</span></p>
+  <div style="margin-bottom:.85rem">
+    <button class="e-tab on" data-t="faucet" onclick="eSetType('faucet')">Dripping Faucet</button>
+    <button class="e-tab" data-t="toilet" onclick="eSetType('toilet')">Running Toilet</button>
+    <button class="e-tab" data-t="trickle" onclick="eSetType('trickle')">Trickle/Stream</button>
+    <button class="e-tab" data-t="irrigation" onclick="eSetType('irrigation')">Irrigation</button>
+  </div>
+  <div class="e-panel" id="ep-faucet" style="display:block">
+    <div style="margin-bottom:.4rem">
+      <button class="e-tab" onclick="eSetDrips(10)">Slow (10)</button>
+      <button class="e-tab on" onclick="eSetDrips(60)">Steady (60)</button>
+      <button class="e-tab" onclick="eSetDrips(120)">Fast (120)</button>
+    </div>
+    <input class="e-input" id="e-drips" type="number" value="60" min="1" placeholder="Drips/min">
+  </div>
+  <div class="e-panel" id="ep-toilet" style="display:none">
+    <input class="e-input" id="e-toilet" type="number" placeholder="Gal/day (default 480)">
+  </div>
+  <div class="e-panel" id="ep-trickle" style="display:none">
+    <input class="e-input" id="e-gph" type="number" placeholder="Gallons per hour">
+  </div>
+  <div class="e-panel" id="ep-irrigation" style="display:none">
+    <input class="e-input" id="e-igph" type="number" value="60" placeholder="Gallons per hour">
+  </div>
+  <div style="margin-top:.75rem">
+    <label style="font-size:.83rem;color:#8a857c">Number of fixtures:</label>
+    <input class="e-input" id="e-count" type="number" value="1" min="1" max="20" style="max-width:100px">
+  </div>
+  <div id="e-result" style="background:#1f1f1f;border-left:3px solid #F2A32C;padding:.85rem 1rem;border-radius:6px;margin-top:1rem;display:none;line-height:1.65"></div>
+</div>
+
+<p class="embed-credit">Powered by <a class="embed-credit-link" href="https://comptonleakrepairpros.com">Compton Leak Repair Pros</a></p>
+</body>
+</html>
